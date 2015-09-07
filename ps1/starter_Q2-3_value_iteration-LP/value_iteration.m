@@ -20,36 +20,18 @@ function [V, pi] = value_iteration(mdp, precision)
             curV = single_iter_value(mdp,prevV,numAction,sSize,sPrimeSize);
             gamma = mdp.gamma;
             
-            Rmax = max(max(max(cat(3, mdp.R{:}))))
+            Rmax = max(max(max(cat(3, mdp.R{:}))));
             i = 0;
             while (max(abs(curV-prevV))>(precision / (2*gamma/(1-gamma))))...
                     && (gamma^i * Rmax/(1-gamma) > precision )
                 prevV = curV;
                 [curV, pi] = single_iter_value(mdp,prevV,numAction,sSize,sPrimeSize);
             end
-            V = curV
+            V = curV;
             
     end
 end
 
-function [perIterV,actionInd] = single_iter_value(mdp,prevV,numAction,sSize,sPrimeSize)
 
-    curIterV = zeros(sSize,numAction);
-    disp(curIterV(1))
-    for aInd = 1:numAction
-        for sInd = 1:sSize
-            for sPInd = 1:sPrimeSize
-                if  mdp.T{aInd}(sInd,sPInd) > 0
-                    curIterV(sInd,aInd) = curIterV(sInd,aInd) + mdp.T{aInd}(sInd,sPInd)*...
-                    (mdp.R{aInd}(sInd,sPInd)+mdp.gamma*prevV(sPInd))
-                end
-            end
-        end
-    end
-    % traverse the curV array to get the max
-    [perIterV,actionInd] = max(curIterV.');
-    perIterV = perIterV.';
-    actionInd = actionInd.';
-end
 
 
