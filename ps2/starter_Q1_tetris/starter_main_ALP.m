@@ -43,9 +43,11 @@ load tetris_game_log
 % let's subsample states to be used in the back-up equation b/c states that are very similar are not that
 % informative, and too many states makes things too slow
 
-subsample_interval = 10;
+subsample_interval = 20;
 
 k=1;
+length(chosen_map_log)
+
 for b=1:length(chosen_map_log)
     if(mod(b,subsample_interval)==0)
         backup_maps{k} = chosen_map_log{b};
@@ -87,8 +89,55 @@ end
 % YOUR CODE
 %  set up the approximate linear program and find the approximate value
 %  function
-	  
+numFeatures = numel(feature_f(map1))
+numSamples = length(backup_maps)
+mu = ones(numSamples,1).';
+theta = ones(numFeatures,1);
+numBlock = 7;
 
+
+
+
+for b=1:numSamples 
+    i = 1;
+    for rotation = 0:3
+        for translation = 1:10
+            curPhiNextOverBlocks = zeros(numFeatures,numBlock);
+            curRNextOverBlocks = zeros(numBlock,1);
+            for blockInd = 1:numBlock
+                curPhiNextOverBlocks(:,blockInd) = phis_next{b}{blockInd}(:,i);
+                curRNextOverBlocks(blockInd) = R{b}{blockInd}(i,1);
+            end
+            phiNextOverBlocks{b}{i} = curPhiNextOverBlocks;
+            RNextOverBlocks{b}{i} = curRNextOverBlocks;
+            i=i+1;
+        end
+    end    
+end
+  
+
+cvx_begin
+    variable the(numFeatures)
+    minimize (mu* (the.' * backup_states_phi).')
+    subject to
+        for b=1:numSamples 
+            i = 1;
+            for rotation = 0:3
+                for translation = 1:10
+                    LHS = the.'*backup_states_phi(:,b);
+                    curPhiNextOverBlocks = phiNextOverBlocks{b}{i};
+                    %phis_next{b}{:}(:,i);
+                    curRNextOverBlocks = RNextOverBlocks{b}{i};
+                    %R{b}{:}(i,1)
+                    RHS = sum( curRNextOverBlocks.' + discount*the.'*curPhiNextOverBlocks);
+                    LHS >= 1/numBlock*RHS;                        
+                    i=i+1;
+                end
+            end
+        end
+    theta = the   
+cvx_end	  
+theta
 % 
 
 board_data = init_board_data();
@@ -96,8 +145,10 @@ board_data = init_board_data();
 for i=1:20
     [scores(i), all_scores{i}, avg_num_blocks_placed(i)] = main_evaluate_theta(theta, feature_f, i+10, board_data);
 end
+avg_num_blocks_placed
 
-
+mean(avg_num_blocks_placed)
+stderr = std(avg_num_blocks_placed)/sqrt(length(avg_num_blocks_placed))
 
 
 
