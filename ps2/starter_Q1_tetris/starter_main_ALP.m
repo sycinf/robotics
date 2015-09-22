@@ -43,7 +43,7 @@ load tetris_game_log
 % let's subsample states to be used in the back-up equation b/c states that are very similar are not that
 % informative, and too many states makes things too slow
 
-subsample_interval = 20;
+subsample_interval = 10;
 
 k=1;
 length(chosen_map_log)
@@ -64,7 +64,7 @@ for b=1:length(backup_maps)
 end
 
 
-discount = .9;
+discount = .85;
 
 % compute all next states, and the rewards associated with it:
 for b=1:length(backup_maps)
@@ -96,49 +96,27 @@ theta = ones(numFeatures,1);
 numBlock = 7;
 
 
-
-
-for b=1:numSamples 
-    i = 1;
-    for rotation = 0:3
-        for translation = 1:10
-            curPhiNextOverBlocks = zeros(numFeatures,numBlock);
-            curRNextOverBlocks = zeros(numBlock,1);
-            for blockInd = 1:numBlock
-                curPhiNextOverBlocks(:,blockInd) = phis_next{b}{blockInd}(:,i);
-                curRNextOverBlocks(blockInd) = R{b}{blockInd}(i,1);
-            end
-            phiNextOverBlocks{b}{i} = curPhiNextOverBlocks;
-            RNextOverBlocks{b}{i} = curRNextOverBlocks;
-            i=i+1;
-        end
-    end    
-end
-  
-
 cvx_begin
     variable the(numFeatures)
+    variable I(numSamples, numBlock)
     minimize (mu* (the.' * backup_states_phi).')
-    subject to
-        for b=1:numSamples 
+    for b=1:numSamples
+        numBlock*the.'*backup_states_phi(:,b) >= sum(I(b,:));
+        
+        for k=1:numBlock
             i = 1;
             for rotation = 0:3
                 for translation = 1:10
-                    LHS = the.'*backup_states_phi(:,b);
-                    curPhiNextOverBlocks = phiNextOverBlocks{b}{i};
-                    %phis_next{b}{:}(:,i);
-                    curRNextOverBlocks = RNextOverBlocks{b}{i};
-                    %R{b}{:}(i,1)
-                    RHS = sum( curRNextOverBlocks.' + discount*the.'*curPhiNextOverBlocks);
-                    LHS >= 1/numBlock*RHS;                        
+                    I(b,k) >= R{b}{k}(i,1)+discount* the.'*phis_next{b}{k}(:,i);
                     i=i+1;
                 end
+                
             end
         end
-    theta = the   
-cvx_end	  
-theta
-% 
+    end
+    theta=the;
+cvx_end
+
 
 board_data = init_board_data();
 
