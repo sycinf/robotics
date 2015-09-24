@@ -5,9 +5,9 @@ function r = tetris_reward(map)
 
 %reward = clearance from top:
 phi = tetris_standard_22_features(map);
-%r = 20-phi(20);
+r = 20-phi(20);
 
 
 
 %reward = 1 everywhere
-r = 1;
+%r = 1;
