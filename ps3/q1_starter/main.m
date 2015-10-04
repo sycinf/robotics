@@ -22,22 +22,23 @@ g1 = gradient_my(@f_linear, x0, finite_diff_eps); % YOURS to implement
 % check your result by comparing with the exact result, which is easily found by inspecting f_linear.
 % my result is upto accuracy 1e-12 equal to the exact gradient
 
-
 g2 = gradient_my(@f_quadratic, x0, finite_diff_eps); 
 % check your result by comparing with the exact result, which is easily found by inspecting f_quadratic.
 % my result is upto accuracy 1e-11 equal to the exact gradient
+g1
+g2
 
-H2 = hessian(@f_quadratic, x0, finite_diff_eps);  % YOURS to implement
+H2 = hessian_my(@f_quadratic, x0, finite_diff_eps);  % YOURS to implement
 
-
+H2
 
 % REPORT the gradient, the Hessian, and the condition number (the ratio of
 % the highest eigenvalue over the lowest eigenvalue) at x_test
 
 x_test = [   0.950129285147175;   0.231138513574288;   0.606842583541787;   0.485982468709300;   0.891298966148902];
 
-g_test = gradient(@f_test_exponential, x_test, finite_diff_eps);
-H_test = hessian(@f_test_exponential, x_test, finite_diff_eps);
+g_test = gradient_my(@f_test_exponential, x_test, finite_diff_eps);
+H_test = hessian_my(@f_test_exponential, x_test, finite_diff_eps);
 
 eigs = eig(H_test);
 condition_number = max(eigs)/min(eigs);
