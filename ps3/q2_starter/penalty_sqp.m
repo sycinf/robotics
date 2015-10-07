@@ -75,8 +75,23 @@ if ~isempty(cfg.callback), cfg.callback(x,{}); end;
 while true    
     
     % YOUR CODE HERE
+    [x, trust_box_size, success] = minimize_merit_function(x, Q, q, ...
+    f, A_ineq, b_ineq, A_eq, b_eq, g, h, cfg, penalty_coeff, trust_box_size);
+    % check violation
+	if(nnz(g(x)>0) || ... 
+        nnz(abs(h(x)) > cfg.cnt_tolerance)...
+        ||nnz((A_ineq*x) > b_ineq) ||...
+        nnz(abs(A_eq*x-b_eq) > cfg.cnt_tolerance))
+        
+        fprintf('violated');
+        penalty_coeff = penalty_coeff * cfg.merit_coeff_increase_ratio;
+        if(trust_box_size <= cfg.min_trust_box_size )
+            trust_box_size = cfg.initial_trust_box_size;
+        end
+    else
+        break;
+    end
     
-	
 end
 
 end
@@ -185,11 +200,18 @@ function [x, trust_box_size, success] = minimize_merit_function(x, Q, q, ...
             % You should enforce the linear constraints exactly.
 			% Make sure to include the constant term f(x) in the merit function
 			% objective as the resulting cvx_optval is used further below.
-            
+            %g0x = fval + fquadlin(x);
+            gradg0x = (Q*x)'+q;
+            gradg0x = gradg0x+fgrad; 
             cvx_begin quiet
                 variables xp(dim_x, 1);
-
-				%YOUR CODE HERE
+                minimize f(x)+fquadlin(x)+gradg0x*(xp-x)+penalty_coeff*hinge(gval+gjac*(xp-x))+penalty_coeff*abssum(hval+hjac*(xp-x)) 
+				subject to
+                norm(xp-x,2)<=trust_box_size;
+                A_ineq*xp <= b_ineq;
+                A_eq*xp == b_eq;
+                
+                %YOUR CODE HERE
 				
             cvx_end
             
