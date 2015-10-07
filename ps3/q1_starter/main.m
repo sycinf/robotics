@@ -1,4 +1,4 @@
-% pabbeel@cs.berkeley.edu
+c% pabbeel@cs.berkeley.edu
 %
 % main.m
 %
@@ -25,12 +25,11 @@ g1 = gradient_my(@f_linear, x0, finite_diff_eps); % YOURS to implement
 g2 = gradient_my(@f_quadratic, x0, finite_diff_eps); 
 % check your result by comparing with the exact result, which is easily found by inspecting f_quadratic.
 % my result is upto accuracy 1e-11 equal to the exact gradient
-g1
-g2
 
 H2 = hessian_my(@f_quadratic, x0, finite_diff_eps);  % YOURS to implement
 
 H2
+
 
 % REPORT the gradient, the Hessian, and the condition number (the ratio of
 % the highest eigenvalue over the lowest eigenvalue) at x_test
@@ -56,7 +55,7 @@ beta = 0.9; % in (0,1)       -- backtracking line search parameter
 [x_q_g_min, x_q_g_iters, f_q_g_iters, stoppingvals_q_g_iters] = gradient_descent(@f_quadratic, x0, finite_diff_eps, stopping_eps, alpha, beta); % YOURS to implement
 figure; plot(f_q_g_iters);
 
-
+%x0=[0.335829261851238;  -0.512216160950424; 0.058977126423144];
 [x_q_newton_min, x_q_newton_iters, f_q_newton_iters, stoppingvals_q_newton_iters] = newton_descent( @f_quadratic, x0, finite_diff_eps, stopping_eps, alpha, beta); % YOURS to implement
 figure; plot(f_q_newton_iters);
   
@@ -91,11 +90,11 @@ d = [ 0.697898481859863];
 
 x0_feasible = C\d;
   
-[x_eq_min, x_eq_iters, f_eq_iters, stoppingvals_eq_iters] = feasible_newton_descent_w_equality_constraints(@f_quadratic, C, d, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta); % YOURS to implement
-  
+[x_eq_min, x_eq_iters, f_eq_iters, stoppingvals_eq_iters] = ...
+    feasible_newton_descent_w_equality_constraints(@f_quadratic, C, d, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta); % YOURS to implement
+
+
 % check your results by comparing against mine
-
-
 
 C_test = [    0.9501    0.6068    0.8913];
 
@@ -104,7 +103,8 @@ d_test = [    0.6154];
 
 x0_feasible = C_test \ d_test;
 
-[x_test_eq_min, x_test_eq_iters, f_test_eq_iters, stoppingvals_test_eq_iters] = feasible_newton_descent_w_equality_constraints(@f_test, C_test, d_test, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta);
+[x_test_eq_min, x_test_eq_iters, f_test_eq_iters, stoppingvals_test_eq_iters]...
+    = feasible_newton_descent_w_equality_constraints(@f_test, C_test, d_test, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta);
 
 plot(f_test_eq_iters)
 
@@ -155,8 +155,10 @@ x0_feasible = C\d;
 % with:
 
 
-[x_q_eq_and_ineq_init_min, feasibility] = init_feasible_newton_descent_w_eq_and_ineq(fi, x_low, x_high, C, d, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta);% YOURS to implement
-
+[x_q_eq_and_ineq_init_min, feasibility] = ...
+    init_feasible_newton_descent_w_eq_and_ineq...
+    (fi, x_low, x_high, C, d, x0_feasible, finite_diff_eps, stopping_eps, alpha, beta);% YOURS to implement
+return
 
 % now let's solve our actual problem:
 
