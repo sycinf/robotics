@@ -130,7 +130,11 @@ end
 %add heli pos to points
 dp = quat2rmat(x(7:10))*points;
 dp = dp + repmat(x(1:3),1,size(points,2));  %drawpoints
-
+if ~isgraphics(hFig)
+  hFig = figure(25);
+  set(hFig,'DoubleBuffer', 'on');
+end
+figure(hFig); hold on;
 figure(hFig); hold on; 
 subplot(1,2,1); view(0,0); cla;
 do_draw;

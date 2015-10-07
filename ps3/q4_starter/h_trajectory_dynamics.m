@@ -16,4 +16,27 @@ f = cfg.f; %dynamics model x_t_plus_1 = f(x_t, u_t, dt);
 %% function also provides the SQP solver with the jacobian of h.  Note that
 %% in our experience it is fast enough to compute the non-zero entries in
 %% jach through numerical differentation.
+h = zeros(nX*T,1);
 
+% here y is vertcat(x,xnext,u)
+single_f = @(y)( f(y(1:nX),y(2*nX+1:end),dt)-y(nX+1:2*nX));
+jach = zeros(nX*T,T*(nX+nU));
+
+for timeStep = 1:T-1
+    curX = x_traj(:,timeStep);
+    curU = u_traj(:,timeStep);
+    nextX = x_traj(:,timeStep+1);
+    curY = vertcat(curX,nextX,curU);
+    h(nX*timeStep+1:nX*(timeStep+1)) = single_f(curY);
+    
+    curJac = numerical_jac(single_f,curY);
+    % now put them inplace
+    jach(nX*timeStep+1:nX*(timeStep+1),(timeStep-1)*nX+1:timeStep*nX) = curJac(:,1:nX);
+    jach(nX*timeStep+1:nX*(timeStep+1),timeStep*nX+1:(timeStep+1)*nX) = curJac(:,nX+1:2*nX);
+    uoffSet = nX*T;
+    jach(nX*timeStep+1:nX*(timeStep+1),uoffSet+(timeStep-1)*nU+1:uoffSet+timeStep*nU)...
+        = curJac(:,2*nX+1:end);
+
+    %f(curX,curU,dt)-nextX;
+end
+end

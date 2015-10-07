@@ -7,15 +7,15 @@ addpath heli_draw_self_contained/orientation
 addpath utils_rotations;
 
 addpath ../q2_solution/
-
+addpath ../q2_starter/
 f = @sim_heli;
 dt = 0.1; % we work with discrete time
 
 
 % you could try some simpler trajectories first if you like:
 
-% [x_init, x_target, u_target ] = load_hover_target_trajectory();
-% [x_init, x_target, u_target ] = load_hover_forward_hover_target_trajectory(dt);
+[x_init, x_target, u_target ] = load_hover_target_trajectory();
+[x_init, x_target, u_target ] = load_hover_forward_hover_target_trajectory(dt);
 
 % REPORT on this trajectory
 [x_init, x_tentative, u_tentative ] = load_aerobatics_target_trajectory(dt);
@@ -87,7 +87,7 @@ subplot(5, 1, 4); plot(x_sim(10:12,:)'); hold on; plot(x_tentative(10:12,:)','--
 subplot(5, 1, 5); plot(u_sim'); hold on; plot(u_tentative','--'); plot(u_target', '.'); ylabel('control inputs: roll, pitch, yaw, collective');
 	
 visualize_trajectory(x_sim, dt);
-
+return;
 
 % ok, now let's do closed-loop control around the trajectory we found ---
 % let's use x_traj and u_traj as our target trajectory for a time varying

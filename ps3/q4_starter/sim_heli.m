@@ -1,6 +1,6 @@
 function x1 = sim_heli(x0, u0, total_dt)
 
-addpath utils_rotations;
+%addpath utils_rotations;
 
 idx = setup_heli_idx;
 
