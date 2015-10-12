@@ -1,4 +1,5 @@
-function [x_target, u_target] = find_target_trajectory_through_SCP(f, dt, x_tentative, u_tentative, x_init, u_min, u_max)
+function [x_target, u_target] = find_target_trajectory_through_SCP...
+    (f, dt, x_tentative, u_tentative, x_init, u_min, u_max)
 
 nX = length(x_init);
 nU = length(u_min);
@@ -26,33 +27,29 @@ traj_dynamics_cfg.dt = dt;
 Qdim = nXUT;
 q = zeros(Qdim,1); % every term will be -2 of tentative value
 q(1:nX*T,1) = -2*x_tentative(:);
-q(nX*T+1:end) = -2*u_tentative(:);
-Q = eye(Qdim); % this get us all the square term for the actual x
-
+q(nX*T+1:end,1) = -2*u_tentative(:);
+Q = 2*eye(Qdim); % this get us all the square term for the actual x
 
 x0 = zeros(Qdim,1); % use tentative for initial?
 x0(1:nX) = x_init;
 
-q=q';
+q=q.';
+
 f0 = @(x) 0;
 maxCons = horzcat(zeros(nU*T,nX*T),eye(nU*T));
 minCons = maxCons*-1;
 A_ineq = vertcat(maxCons,minCons);
 
-upper = repmat(u_max,1,T);
-lower = repmat(u_min,1,T)*-1;
+upper = repmat(u_max,T,1);
+lower = repmat(u_min,T,1)*-1;
 b_ineq = vertcat(upper(:),lower(:));
 % only initial xp being the constraint
 A_eq = horzcat(eye(nX), zeros(nX,Qdim-nX));
 b_eq = x_init;
 g = @(x) -1e5;
 
-h = @(x) h_trajectory_dynamics(x, traj_dynamics_cfg); %YOURS TO IMPLEMENT
+h = @(x)h_trajectory_dynamics(x, traj_dynamics_cfg); %YOURS TO IMPLEMENT
 
-
-size(Q)
-size(q)
-size(x0)
 fprintf('penalty_start');
 [xu_trajectory, success] = penalty_sqp(x0, Q, q, f0, A_ineq, b_ineq, A_eq, b_eq, g, h, user_cfg);
 

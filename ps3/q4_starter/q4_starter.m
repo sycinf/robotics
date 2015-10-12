@@ -63,7 +63,7 @@ u_max = [ 1;  1;  1;  1];
 [x_target, u_target] = find_target_trajectory_through_SCP(f, dt, x_tentative, u_tentative, x_init, u_min, u_max);
 
 %% END YOUR CODE
-
+u_target
 
 visualize_trajectory(x_target, dt);
 
@@ -85,7 +85,7 @@ subplot(5, 1, 2); plot(x_sim(4:6,:)'); hold on; plot(x_tentative(4:6,:)','--'); 
 subplot(5, 1, 3); plot(x_sim(7:9,:)'); hold on; plot(x_tentative(7:9,:)','--'); plot(x_target(7:9,:)','.'); ylabel('p, q, r');
 subplot(5, 1, 4); plot(x_sim(10:12,:)'); hold on; plot(x_tentative(10:12,:)','--'); plot(x_target(10:12,:)','.'); ylabel('axis angle rotation x, y, z');
 subplot(5, 1, 5); plot(u_sim'); hold on; plot(u_tentative','--'); plot(u_target', '.'); ylabel('control inputs: roll, pitch, yaw, collective');
-	
+pause	
 visualize_trajectory(x_sim, dt);
 return;
 
@@ -112,7 +112,12 @@ Q_lqr_final = Q_lqr;
 
 
 %% YOUR CODE: implement simulation of the controller:
+x_sim_cl(:,1) = x_init;
 
+for t=1:T-1
+	u_sim_cl(:,t) = u_target(:,t);
+	x_sim_cl(:,t+1) = f(x_sim_cl(:,t), u_sim_cl(:,t), dt);
+end
 
 %% END YOUR CODE
 
